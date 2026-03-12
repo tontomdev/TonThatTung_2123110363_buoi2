@@ -1,0 +1,6 @@
+@TonThatTung_2123110363_HostAddress = http://localhost:5062
+
+GET {{TonThatTung_2123110363_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
