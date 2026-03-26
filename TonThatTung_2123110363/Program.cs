@@ -1,4 +1,5 @@
-
+﻿using Microsoft.EntityFrameworkCore;
+using TonThatTung_2123110363.Data;
 namespace TonThatTung_2123110363
 {
     public class Program
@@ -6,6 +7,10 @@ namespace TonThatTung_2123110363
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            // Đăng ký SQL Server
+            builder.Services.AddDbContext<AppDbContext>(options =>
+
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Add services to the container.
 
