@@ -9,6 +9,7 @@ namespace TonThatTung_2123110363.Data
     base(options)
         {
         }
-        public DbSet<Products> Products { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories { get; set; }
     }
 }

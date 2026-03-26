@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using Microsoft.EntityFrameworkCore;
+using TonThatTung_2123110363.Data;
+using TonThatTung_2123110363.Models;
 
 namespace TonThatTung_2123110363.Controllers
 {
@@ -8,36 +9,73 @@ namespace TonThatTung_2123110363.Controllers
     [ApiController]
     public class CategorisController : ControllerBase
     {
-        // GET: api/<CategorysController>
+        private readonly AppDbContext _context;
+
+        public CategorisController(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        // GET: api/Categoris
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IActionResult> Get()
         {
-            return new string[] { "value1", "value2" };
+            var categories = await _context.Categories.ToListAsync();
+            return Ok(categories);
         }
 
-        // GET api/<CategorysController>/5
+        // GET api/Categoris/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            return "value";
+            var category = await _context.Categories.FindAsync(id);
+
+            if (category == null)
+                return NotFound();
+
+            return Ok(category);
         }
 
-        // POST api/<CategorysController>
+        // POST api/Categoris
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> Post(Category category)
         {
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
+
+            return Ok(category);
         }
 
-        // PUT api/<CategorysController>/5
+        // PUT api/Categoris/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> Put(int id, Category category)
         {
+            var c = await _context.Categories.FindAsync(id);
+
+            if (c == null)
+                return NotFound();
+
+            c.CategoryName = category.CategoryName;
+            c.Description = category.Description;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(c);
         }
 
-        // DELETE api/<CategorysController>/5
+        // DELETE api/Categoris/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
+            var c = await _context.Categories.FindAsync(id);
+
+            if (c == null)
+                return NotFound();
+
+            _context.Categories.Remove(c);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }
