@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TonThatTung_2123110363.Data;
 using TonThatTung_2123110363.Models;
 
-namespace YourProject.Controllers
+namespace TonThatTung_2123110363.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -56,6 +56,10 @@ namespace YourProject.Controllers
                 return NotFound();
 
             p.ProductName = product.ProductName;
+            p.Price = product.Price;
+            p.Quantity = product.Quantity;
+            p.Description = product.Description;
+            p.CategoryId = product.CategoryId;
 
             await _context.SaveChangesAsync();
 

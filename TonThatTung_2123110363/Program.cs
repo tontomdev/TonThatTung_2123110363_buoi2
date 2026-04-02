@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TonThatTung_2123110363.Data;
 namespace TonThatTung_2123110363
 {
@@ -19,19 +19,32 @@ namespace TonThatTung_2123110363
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // Cấu hình CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    });
+            });
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
+
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            app.UseCors("AllowAll");
 
+            app.UseAuthorization();
 
             app.MapControllers();
 
