@@ -1,23 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace TonThatTung_2123110363.Models
+﻿namespace TonThatTung_2123110363.DTOs.Products
 {
-    public class Product
+    public class ProductResponseDto
     {
-        [Key]
         public int Id { get; set; }
-
-        [Required]
         public string ProductName { get; set; } = string.Empty;
-
         public decimal Price { get; set; }
-
         public int Quantity { get; set; }
-
         public string? Description { get; set; }
         public string? Thumbnail { get; set; }
         public int CategoryId { get; set; }
-        public Category? Category { get; set; }
-        public ICollection<OrderDetail>? OrderDetails { get; set; }
+        public string? CategoryName { get; set; } 
     }
 }

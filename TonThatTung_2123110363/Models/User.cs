@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TonThatTung_2123110363.Models
 {
@@ -9,16 +10,16 @@ namespace TonThatTung_2123110363.Models
 
         [Required]
         [StringLength(100)]
-        public string FullName { get; set; }
+        public string? FullName { get; set; }
 
         [Required]
         [StringLength(100)]
         [EmailAddress]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         [Required]
         [StringLength(100)]
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
         [StringLength(20)]
         public string? Phone { get; set; }
@@ -26,10 +27,13 @@ namespace TonThatTung_2123110363.Models
         [StringLength(200)]
         public string? Address { get; set; }
 
-        [StringLength(20)]
-        public string Role { get; set; } = "User";
+        // FK Role
+        public int RoleId { get; set; }
 
-        // ===== relation =====
+        [ForeignKey("RoleId")]
+        public Role? Role { get; set; }
+
+        // Navigation
         public ICollection<Order>? Orders { get; set; }
     }
 }

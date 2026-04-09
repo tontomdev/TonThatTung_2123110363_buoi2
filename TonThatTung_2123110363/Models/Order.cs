@@ -18,11 +18,11 @@ namespace TonThatTung_2123110363.Models
         [StringLength(50)]
         public string Status { get; set; } = "Pending";
 
-        // ====== FK User ======
         public int UserId { get; set; }
         public User? User { get; set; }
 
-        // ====== Navigation ======
         public ICollection<OrderDetail>? OrderDetails { get; set; }
+
+        public Payment? Payment { get; set; }
     }
 }

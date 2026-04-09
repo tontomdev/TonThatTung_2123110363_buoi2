@@ -14,5 +14,8 @@ namespace TonThatTung_2123110363.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<User> Users { get; set; }
+
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Role> Roles { get; set; }
     }
 }
