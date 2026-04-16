@@ -16,5 +16,4 @@ namespace TonThatTung_2123110363.Models
         // Navigation
         public ICollection<User>? Users { get; set; }
     }
-    //sad
 }
