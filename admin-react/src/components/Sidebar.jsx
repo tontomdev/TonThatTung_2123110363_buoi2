@@ -13,7 +13,7 @@ export default function Sidebar({ currentView, setCurrentView }) {
         <aside className="sidebar">
             <div className="sidebar-header">
                 <i className="fa-solid fa-bolt text-accent"></i>
-                <h2>Pro<span className="text-accent">Sports</span></h2>
+                <h2>The<span className="text-accent">Coffee</span>Chill</h2>
             </div>
             
             <ul className="nav-links">

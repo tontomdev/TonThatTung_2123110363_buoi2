@@ -15,7 +15,26 @@ namespace TonThatTung_2123110363.Controllers
         {
             _context = context;
         }
+        [HttpGet]
+        public async Task<IActionResult> GetOrders()
+        {
+            var orders = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .Include(o => o.Payment)
+                .Include(o => o.User)
+                .Select(o => new
+                {
+                    id = o.Id,
+                    userName = o.User != null ? o.User.FullName : null,
+                    orderDate = o.OrderDate,
+                    totalAmount = o.TotalAmount,
+                    status = o.Status,
+                    itemsCount = o.OrderDetails.Count
+                })
+                .ToListAsync();
 
+            return Ok(orders);
+        }
         // POST: api/orders
         [HttpPost]
         public async Task<ActionResult<Order>> CreateOrder(CreateOrderRequest request)
@@ -62,12 +81,37 @@ namespace TonThatTung_2123110363.Controllers
             await _context.SaveChangesAsync();
 
             // Load l?i d? li?u ??y ?? ?? tr? v?
-            var createdOrder = await _context.Orders
-                .Include(o => o.OrderDetails)
-                .Include(o => o.Payment)
-                .FirstOrDefaultAsync(o => o.Id == order.Id);
+var createdOrder = await _context.Orders
+    .Include(o => o.OrderDetails)
+        .ThenInclude(od => od.Product)
+    .Include(o => o.Payment)
+    .FirstOrDefaultAsync(o => o.Id == order.Id);
 
-            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, createdOrder);
+// ?? map sang DTO
+var result = new OrderResponseDto
+{
+    Id = createdOrder.Id,
+    UserId = createdOrder.UserId,
+    OrderDate = createdOrder.OrderDate,
+    TotalAmount = createdOrder.TotalAmount,
+    Status = createdOrder.Status,
+    OrderDetails = createdOrder.OrderDetails.Select(od => new OrderDetailResponseDto
+    {
+        ProductId = od.ProductId,
+        ProductName = od.Product.ProductName,
+        Quantity = od.Quantity,
+        Price = od.Price
+    }).ToList(),
+    Payment = new PaymentResponseDto
+    {
+        Id = createdOrder.Payment.Id,
+        Method = createdOrder.Payment.Method,
+        Amount = createdOrder.Payment.Amount
+    }
+};
+
+// ? b? CreatedAtAction
+return Ok(result);
         }
 
         // GET: api/orders/5

@@ -4,7 +4,16 @@ import { API_BASE_URL } from '../config';
 export default function UsersView() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    const [roles, setRoles] = useState([]);
+    const fetchRoles = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/Role`);
+            const data = await res.json();
+            setRoles(data);
+        } catch (err) {
+            console.error("Error fetching roles", err);
+        }
+    };
     const fetchUsers = async () => {
         setLoading(true);
         try {
@@ -16,9 +25,83 @@ export default function UsersView() {
         }
         setLoading(false);
     };
+    const [showModal, setShowModal] = useState(false);
+
+const initialForm = {
+    id: null,
+    fullName: '',
+    email: '',
+    password: '',
+    roleId: ''
+};
+    const getRoleClass = (roleName) => {
+        switch (roleName) {
+            case 'Admin': return 'admin';
+            case 'Cashier': return 'cashier';
+            case 'Barista': return 'barista';
+            default: return 'user';
+        }
+    };
+    const [formData, setFormData] = useState(initialForm);
+    const editUser = (u) => {
+        setFormData({
+            id: u.id,
+            fullName: u.fullName,
+            email: u.email,
+            roleId: u.roleId
+        });
+        setShowModal(true);
+    };
+const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+        const method = formData.id ? 'PUT' : 'POST';
+        const url = formData.id
+            ? `${API_BASE_URL}/Users/${formData.id}`
+            : `${API_BASE_URL}/Users`;
+
+        const payload = formData.id
+            ? {
+                id: formData.id,
+                fullName: formData.fullName,
+                roleId: formData.roleId
+            }
+            : {
+                fullName: formData.fullName,
+                email: formData.email,
+                password: formData.password,
+                roleId: formData.roleId
+            };
+
+        await fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        setShowModal(false);
+        setFormData(initialForm);
+        fetchUsers();
+if (!formData.fullName || !formData.roleId) {
+    alert("Please fill full name & role");
+    return;
+}
+
+if (!formData.id && (!formData.email || !formData.password)) {
+    alert("Email & Password required");
+    return;
+}
+    } catch (err) {
+        alert("Error saving user");
+    }
+};
 
     useEffect(() => {
         fetchUsers();
+        fetchRoles();
     }, []);
 
     const deleteUser = async (id) => {
@@ -29,12 +112,25 @@ export default function UsersView() {
     };
 
     return (
+
         <section className="view-section active">
-            <div className="page-header">
-                <h1>Users</h1>
-                <p>Manage customers and admins</p>
-            </div>
-            
+<div className="page-header flex-between">
+    <div>
+        <h1>Users</h1>
+        <p>Manage customers and admins</p>
+    </div>
+
+    <button
+        className="btn btn-primary"
+        onClick={() => {
+            setFormData(initialForm);
+            setShowModal(true);
+        }}
+    >
+        <i className="fa-solid fa-plus"></i> Add User
+    </button>
+</div>
+
             <div className="table-container glass-panel">
                 <table className="data-table">
                     <thead>
@@ -58,26 +154,110 @@ export default function UsersView() {
                                     <td><strong>{u.fullName}</strong></td>
                                     <td>{u.email}</td>
                                     <td>
-                                        <span className="badge" style={{
-                                            position: 'static', 
-                                            padding: '3px 8px', 
-                                            borderRadius: '12px', 
-                                            background: u.role === 'Admin' ? 'var(--accent)' : 'var(--success)',
-                                            width: 'auto',
-                                            height: 'auto'
-                                        }}>
-                                            {u.role}
+                                        <span className={`role-badge ${getRoleClass(u.roleName)}`}>
+                                            <i className={`fa-solid ${u.roleName === 'Admin' ? 'fa-shield' :
+                                                    u.roleName === 'Cashier' ? 'fa-cash-register' :
+                                                        'fa-mug-hot'
+                                                }`}></i>
+                                            {u.roleName}
                                         </span>
                                     </td>
                                     <td className="action-btns">
-                                        <button className="btn btn-sm btn-danger" onClick={() => deleteUser(u.id)}><i className="fa-solid fa-trash"></i></button>
+                                        <button
+                                            className="btn btn-sm btn-warning"
+                                            onClick={() => editUser(u)}
+                                        >
+                                            <i className="fa-solid fa-pen"></i>
+                                        </button>
+
+                                        <button
+                                            className="btn btn-sm btn-danger"
+                                            onClick={() => deleteUser(u.id)}
+                                        >
+                                            <i className="fa-solid fa-trash"></i>
+                                        </button>
                                     </td>
+
                                 </tr>
                             ))
                         )}
                     </tbody>
                 </table>
             </div>
+            {showModal && (
+                <div className="modal-overlay active">
+                    <div className="modal-content glass-panel">
+                        <div className="modal-header">
+                            <h2>{formData.id ? 'Edit User' : 'Add User'}</h2>
+                            <button className="icon-btn" onClick={() => setShowModal(false)}>
+                                ✕
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label>Full Name</label>
+                                <input
+                                    className="form-control"
+                                    value={formData.fullName}
+                                    onChange={e => setFormData({ ...formData, fullName: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Email</label>
+      <input
+    className="form-control"
+    value={formData.email}
+    onChange={e => setFormData({ ...formData, email: e.target.value })}
+    disabled={formData.id} // chỉ disable khi edit
+/>
+                            </div>
+{!formData.id && (
+    <div className="form-group">
+        <label>Password</label>
+        <input
+            type="password"
+            className="form-control"
+            value={formData.password}
+            onChange={e => setFormData({ ...formData, password: e.target.value })}
+            required
+        />
+    </div>
+)}
+                            <div className="form-group">
+                                <label>Role</label>
+                                <select
+                                    className="form-control"
+                                    value={formData.roleId}
+                                    onChange={e => setFormData({
+                                        ...formData,
+                                        roleId: parseInt(e.target.value)
+                                    })}
+                                >
+                                    <option value="">-- Select Role --</option>
+                                    {roles.map(r => (
+                                        <option key={r.id} value={r.id}>
+                                            {r.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="modal-actions">
+                                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                                    Cancel
+                                </button>
+                                <button type="submit" className="btn btn-primary">
+                                    Save
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </section>
+
     );
+
 }

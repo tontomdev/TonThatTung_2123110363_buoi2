@@ -8,7 +8,7 @@ export default function ProductsView() {
     const [showModal, setShowModal] = useState(false);
     
     // Initial form data matches ASP.NET Product model
-    const initialFormState = { id: '', productName: '', price: '', quantity: '', categoryId: '', description: '' };
+    const initialFormState = { id: null, productName: '', price: '', quantity: '', categoryId: '', description: '' };
     const [formData, setFormData] = useState(initialFormState);
 
     const fetchData = async () => {
@@ -31,33 +31,38 @@ export default function ProductsView() {
         fetchData();
     }, []);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const payload = { 
-            productName: formData.productName, 
-            price: parseFloat(formData.price),
-            quantity: parseInt(formData.quantity, 10),
-            categoryId: parseInt(formData.categoryId, 10),
-            description: formData.description 
-        };
-        const method = formData.id ? 'PUT' : 'POST';
-        const url = formData.id ? `${API_BASE_URL}/Products/${formData.id}` : `${API_BASE_URL}/Products`;
-        
-        if (formData.id) payload.id = parseInt(formData.id);
+const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        try {
-            await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            setShowModal(false);
-            setFormData(initialFormState);
-            fetchData();
-        } catch (err) {
-            alert('Error saving product');
-        }
-    };
+    const form = new FormData();
+    form.append("ProductName", formData.productName);
+    form.append("Price", formData.price);
+    form.append("Quantity", formData.quantity);
+    form.append("CategoryId", formData.categoryId);
+    form.append("Description", formData.description);
+
+    const method = formData.id ? 'PUT' : 'POST';
+    const url = formData.id 
+        ? `${API_BASE_URL}/Products/${formData.id}` 
+        : `${API_BASE_URL}/Products`;
+
+    try {
+        const res = await fetch(url, {
+            method,
+            body: form // ❗ KHÔNG set Content-Type
+        });
+
+        const data = await res.json();
+        console.log("Saved:", data);
+
+        setShowModal(false);
+        setFormData(initialFormState);
+        fetchData();
+    } catch (err) {
+        console.error(err);
+        alert('Error saving product');
+    }
+};
 
     const editProduct = (p) => {
         setFormData({ 

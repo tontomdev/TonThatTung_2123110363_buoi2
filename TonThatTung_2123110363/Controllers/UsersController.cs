@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TonThatTung_2123110363.Data;
+using TonThatTung_2123110363.DTOs.Users;
 using TonThatTung_2123110363.Models;
 
 namespace TonThatTung_2123110363.Controllers
@@ -20,7 +21,17 @@ namespace TonThatTung_2123110363.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _context.Users
+                .Include(u => u.Role)
+                .Select(u => new {
+                    id = u.Id,
+                    fullName = u.FullName,
+                    email = u.Email,
+                    roleId = u.RoleId,
+                    roleName = u.Role != null ? u.Role.Name : null
+                })
+                .ToListAsync();
+
             return Ok(users);
         }
 
@@ -28,12 +39,20 @@ namespace TonThatTung_2123110363.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Id == id)
+                .Select(u => new {
+                    id = u.Id,
+                    fullName = u.FullName,
+                    email = u.Email,
+                    roleId = u.RoleId,
+                    roleName = u.Role.Name
+                })
+                .FirstOrDefaultAsync();
 
             if (user == null)
-            {
                 return NotFound();
-            }
 
             return Ok(user);
         }
@@ -45,37 +64,24 @@ namespace TonThatTung_2123110363.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            return Ok(user);
         }
 
         // PUT: api/Users/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(int id, [FromBody] UpdateUserDto dto)
         {
-            if (id != user.Id)
-            {
-                return BadRequest();
-            }
+            var user = await _context.Users.FindAsync(id);
 
-            _context.Entry(user).State = EntityState.Modified;
+            if (user == null)
+                return NotFound();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            user.FullName = dto.FullName;
+            user.RoleId = dto.RoleId;
 
-            return NoContent();
+            await _context.SaveChangesAsync();
+
+            return Ok(user);
         }
 
         // DELETE: api/Users/5

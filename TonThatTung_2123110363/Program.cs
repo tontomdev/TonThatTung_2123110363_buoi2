@@ -60,5 +60,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseStaticFiles();
+app.Urls.Add("http://0.0.0.0:7002");
 
 app.Run();
