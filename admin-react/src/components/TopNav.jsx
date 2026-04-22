@@ -5,7 +5,7 @@ export default function TopNav() {
         <header className="top-nav">
             <div className="search-bar">
                 <i className="fa-solid fa-search"></i>
-                <input type="text" placeholder="Search anything..." />
+                <input type="text" placeholder="Tim kiem..." />
             </div>
             <div className="nav-actions">
                 <button className="icon-btn">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL } from '../../config';
 
 export default function UsersView() {
     const [users, setUsers] = useState([]);
@@ -27,13 +27,13 @@ export default function UsersView() {
     };
     const [showModal, setShowModal] = useState(false);
 
-const initialForm = {
-    id: null,
-    fullName: '',
-    email: '',
-    password: '',
-    roleId: ''
-};
+    const initialForm = {
+        id: null,
+        fullName: '',
+        email: '',
+        password: '',
+        roleId: ''
+    };
     const getRoleClass = (roleName) => {
         switch (roleName) {
             case 'Admin': return 'admin';
@@ -52,52 +52,52 @@ const initialForm = {
         });
         setShowModal(true);
     };
-const handleSubmit = async (e) => {
-    e.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-    try {
-        const method = formData.id ? 'PUT' : 'POST';
-        const url = formData.id
-            ? `${API_BASE_URL}/Users/${formData.id}`
-            : `${API_BASE_URL}/Users`;
+        try {
+            const method = formData.id ? 'PUT' : 'POST';
+            const url = formData.id
+                ? `${API_BASE_URL}/Users/${formData.id}`
+                : `${API_BASE_URL}/Users`;
 
-        const payload = formData.id
-            ? {
-                id: formData.id,
-                fullName: formData.fullName,
-                roleId: formData.roleId
+            const payload = formData.id
+                ? {
+                    id: formData.id,
+                    fullName: formData.fullName,
+                    roleId: formData.roleId
+                }
+                : {
+                    fullName: formData.fullName,
+                    email: formData.email,
+                    password: formData.password,
+                    roleId: formData.roleId
+                };
+
+            await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            setShowModal(false);
+            setFormData(initialForm);
+            fetchUsers();
+            if (!formData.fullName || !formData.roleId) {
+                alert("Vui long nhap ho ten va vai tro");
+                return;
             }
-            : {
-                fullName: formData.fullName,
-                email: formData.email,
-                password: formData.password,
-                roleId: formData.roleId
-            };
 
-        await fetch(url, {
-            method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-
-        setShowModal(false);
-        setFormData(initialForm);
-        fetchUsers();
-if (!formData.fullName || !formData.roleId) {
-    alert("Please fill full name & role");
-    return;
-}
-
-if (!formData.id && (!formData.email || !formData.password)) {
-    alert("Email & Password required");
-    return;
-}
-    } catch (err) {
-        alert("Error saving user");
-    }
-};
+            if (!formData.id && (!formData.email || !formData.password)) {
+                alert("Email va mat khau la bat buoc");
+                return;
+            }
+        } catch (err) {
+            alert("Loi khi luu tai khoan");
+        }
+    };
 
     useEffect(() => {
         fetchUsers();
@@ -105,7 +105,7 @@ if (!formData.id && (!formData.email || !formData.password)) {
     }, []);
 
     const deleteUser = async (id) => {
-        if (window.confirm('Are you sure you want to delete this user?')) {
+        if (window.confirm('Ban co chac muon xoa tai khoan nay?')) {
             await fetch(`${API_BASE_URL}/Users/${id}`, { method: 'DELETE' });
             fetchUsers();
         }
@@ -114,39 +114,39 @@ if (!formData.id && (!formData.email || !formData.password)) {
     return (
 
         <section className="view-section active">
-<div className="page-header flex-between">
-    <div>
-        <h1>Users</h1>
-        <p>Manage customers and admins</p>
-    </div>
+            <div className="page-header flex-between">
+                <div>
+                    <h1>Tai khoan</h1>
+                    <p>Quan ly khach hang va nhan su</p>
+                </div>
 
-    <button
-        className="btn btn-primary"
-        onClick={() => {
-            setFormData(initialForm);
-            setShowModal(true);
-        }}
-    >
-        <i className="fa-solid fa-plus"></i> Add User
-    </button>
-</div>
+                <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                        setFormData(initialForm);
+                        setShowModal(true);
+                    }}
+                >
+                    <i className="fa-solid fa-plus"></i> Them tai khoan
+                </button>
+            </div>
 
             <div className="table-container glass-panel">
                 <table className="data-table">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Name</th>
+                            <th>Ho ten</th>
                             <th>Email</th>
-                            <th>Role</th>
-                            <th>Actions</th>
+                            <th>Vai tro</th>
+                            <th>Thao tac</th>
                         </tr>
                     </thead>
                     <tbody>
                         {loading ? (
                             <tr><td colSpan="5" className="text-center"><div className="loader"></div></td></tr>
                         ) : users.length === 0 ? (
-                            <tr><td colSpan="5" className="text-center text-muted">No users found.</td></tr>
+                            <tr><td colSpan="5" className="text-center text-muted">Khong co tai khoan nao.</td></tr>
                         ) : (
                             users.map(u => (
                                 <tr key={u.id}>
@@ -156,8 +156,8 @@ if (!formData.id && (!formData.email || !formData.password)) {
                                     <td>
                                         <span className={`role-badge ${getRoleClass(u.roleName)}`}>
                                             <i className={`fa-solid ${u.roleName === 'Admin' ? 'fa-shield' :
-                                                    u.roleName === 'Cashier' ? 'fa-cash-register' :
-                                                        'fa-mug-hot'
+                                                u.roleName === 'Cashier' ? 'fa-cash-register' :
+                                                    'fa-mug-hot'
                                                 }`}></i>
                                             {u.roleName}
                                         </span>
@@ -188,7 +188,7 @@ if (!formData.id && (!formData.email || !formData.password)) {
                 <div className="modal-overlay active">
                     <div className="modal-content glass-panel">
                         <div className="modal-header">
-                            <h2>{formData.id ? 'Edit User' : 'Add User'}</h2>
+                            <h2>{formData.id ? 'Sua tai khoan' : 'Them tai khoan'}</h2>
                             <button className="icon-btn" onClick={() => setShowModal(false)}>
                                 ✕
                             </button>
@@ -196,7 +196,7 @@ if (!formData.id && (!formData.email || !formData.password)) {
 
                         <form onSubmit={handleSubmit}>
                             <div className="form-group">
-                                <label>Full Name</label>
+                                <label>Ho ten</label>
                                 <input
                                     className="form-control"
                                     value={formData.fullName}
@@ -206,27 +206,27 @@ if (!formData.id && (!formData.email || !formData.password)) {
 
                             <div className="form-group">
                                 <label>Email</label>
-      <input
-    className="form-control"
-    value={formData.email}
-    onChange={e => setFormData({ ...formData, email: e.target.value })}
-    disabled={formData.id} // chỉ disable khi edit
-/>
+                                <input
+                                    className="form-control"
+                                    value={formData.email}
+                                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                    disabled={formData.id} // chỉ disable khi edit
+                                />
                             </div>
-{!formData.id && (
-    <div className="form-group">
-        <label>Password</label>
-        <input
-            type="password"
-            className="form-control"
-            value={formData.password}
-            onChange={e => setFormData({ ...formData, password: e.target.value })}
-            required
-        />
-    </div>
-)}
+                            {!formData.id && (
+                                <div className="form-group">
+                                    <label>Mat khau</label>
+                                    <input
+                                        type="password"
+                                        className="form-control"
+                                        value={formData.password}
+                                        onChange={e => setFormData({ ...formData, password: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                            )}
                             <div className="form-group">
-                                <label>Role</label>
+                                <label>Vai tro</label>
                                 <select
                                     className="form-control"
                                     value={formData.roleId}
@@ -235,7 +235,7 @@ if (!formData.id && (!formData.email || !formData.password)) {
                                         roleId: parseInt(e.target.value)
                                     })}
                                 >
-                                    <option value="">-- Select Role --</option>
+                                    <option value="">-- Chon vai tro --</option>
                                     {roles.map(r => (
                                         <option key={r.id} value={r.id}>
                                             {r.name}
@@ -246,10 +246,10 @@ if (!formData.id && (!formData.email || !formData.password)) {
 
                             <div className="modal-actions">
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
-                                    Cancel
+                                    Huy
                                 </button>
                                 <button type="submit" className="btn btn-primary">
-                                    Save
+                                    Luu
                                 </button>
                             </div>
                         </form>

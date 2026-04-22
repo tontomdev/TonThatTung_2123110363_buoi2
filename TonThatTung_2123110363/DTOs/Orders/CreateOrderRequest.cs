@@ -4,7 +4,7 @@ namespace TonThatTung_2123110363.DTOs.Orders
 {
     public class CreateOrderRequest
     {
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         public List<OrderDetailDto> OrderDetails { get; set; }
         public PaymentDto Payment { get; set; }
     }

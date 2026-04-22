@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TonThatTung_2123110363.Data;
+using TonThatTung_2123110363.DTOs.Payments;
 using TonThatTung_2123110363.Models;
 
 namespace TonThatTung_2123110363.Controllers
@@ -17,13 +18,21 @@ namespace TonThatTung_2123110363.Controllers
         }
 
         // GET: api/payment
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Payment>>> GetPayments()
+[HttpGet]
+public async Task<IActionResult> GetPayments()
+{
+    var payments = await _context.Payments
+        .Select(p => new PaymentDto
         {
-            return await _context.Payments
-                                 .Include(p => p.Order) // lấy luôn Order liên quan
-                                 .ToListAsync();
-        }
+            Id = p.Id,
+            OrderId = p.OrderId,
+            Method = p.Method,
+            Amount = p.Amount
+        })
+        .ToListAsync();
+
+    return Ok(payments);
+}
 
         // GET: api/payment/5
         [HttpGet("{id}")]
@@ -43,39 +52,37 @@ namespace TonThatTung_2123110363.Controllers
         [HttpPost]
         public async Task<ActionResult<Payment>> CreatePayment(Payment payment)
         {
-            // kiểm tra order tồn tại
             var order = await _context.Orders.FindAsync(payment.OrderId);
             if (order == null)
                 return BadRequest("Order không tồn tại");
 
+            payment.Amount = order.TotalAmount;
+
             _context.Payments.Add(payment);
+
+            // 🔥 cập nhật trạng thái order
+            order.Status = "Paid";
+
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetPayment), new { id = payment.Id }, payment);
+            return Ok(payment);
         }
 
         // PUT: api/payment/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePayment(int id, Payment payment)
+        public async Task<IActionResult> UpdatePayment(int id, Payment dto)
         {
-            if (id != payment.Id)
-                return BadRequest();
+            var payment = await _context.Payments.FindAsync(id);
+            if (payment == null)
+                return NotFound();
 
-            _context.Entry(payment).State = EntityState.Modified;
+            payment.Method = dto.Method;
+            payment.Amount = dto.Amount;
+            payment.OrderId = dto.OrderId;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Payments.Any(e => e.Id == id))
-                    return NotFound();
-                else
-                    throw;
-            }
+            await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(payment);
         }
 
         // DELETE: api/payment/5

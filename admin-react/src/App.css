@@ -209,4 +209,37 @@
     right: 0;
     border-right-color: var(--border);
   }
+  
+}
+.status-select {
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.status-select.Pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-select.Paid {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-select.Completed {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-select.Cancel {
+    background: #f8d7da;
+    color: #721c24;
+}
+.pos-products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
 }
